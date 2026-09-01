@@ -53,7 +53,7 @@ int nextAccountNumber = 1001;
 
 string getCurrentDate()
 {
-    time_t now = time(nullptr);
+    time_t now = time(0);
     tm* timeInfo = localtime(&now);
 
     char buffer[20];
@@ -96,65 +96,56 @@ Account* findAccount(int accountNumber)
 
 void createAccount()
 {
-    Account newAccount;
+    Account newAcc;
 
-    cout << "\n========================================\n";
-    cout << "           CREATE ACCOUNT\n";
-    cout << "========================================\n";
+    cout << "\n----------------------------------------\n";
+    cout << "          CREATE NEW ACCOUNT\n";
+    cout << "----------------------------------------\n";
 
     cout << "Customer Name: ";
-    getline(cin >> ws, newAccount.customerName);
+    getline(cin >> ws, newAcc.customerName);
 
     cout << "Account Type (Savings/Checking): ";
-    getline(cin, newAccount.accountType);
+    getline(cin, newAcc.accountType);
 
-    if (newAccount.accountType != "Savings" &&
-        newAccount.accountType != "savings" &&
-        newAccount.accountType != "Checking" &&
-        newAccount.accountType != "checking")
+    if (newAcc.accountType != "Savings" &&
+        newAcc.accountType != "savings" &&
+        newAcc.accountType != "Checking" &&
+        newAcc.accountType != "checking")
     {
-        cout << "\nInvalid account type.\n";
+        cout << "Invalid account type!\n";
         cout << "Please enter Savings or Checking.\n";
         return;
     }
 
     cout << "Opening Balance (Rs): ";
-    cin >> newAccount.balance;
+    cin >> newAcc.balance;
 
     if (cin.fail())
     {
         clearInput();
-        cout << "Invalid balance.\n";
+        cout << "Invalid balance!\n";
         return;
     }
 
-    if (newAccount.balance < 0)
+    if (newAcc.balance < 0)
     {
-        cout << "Balance cannot be negative.\n";
+        cout << "Balance cannot be negative!\n";
         return;
     }
 
-    newAccount.accountNumber = nextAccountNumber++;
-    newAccount.createdDate = getCurrentDate();
+    // Assign account number only after successful input
+    newAcc.accountNumber = nextAccountNumber++;
 
-    accounts.push_back(newAccount);
+    // Get creation date
+    newAcc.createdDate = getCurrentDate();
 
-    cout << "\n========================================\n";
-    cout << "      ACCOUNT CREATED SUCCESSFULLY\n";
-    cout << "========================================\n";
+    // Add account to vector
+    accounts.push_back(newAcc);
 
+    cout << "\nAccount created successfully!\n";
     cout << "Account Number: "
-         << newAccount.accountNumber << endl;
-
-    cout << "Customer Name: "
-         << newAccount.customerName << endl;
-
-    cout << "Account Type: "
-         << newAccount.accountType << endl;
-
-    cout << "Opening Balance: Rs "
-         << fixed << setprecision(2)
-         << newAccount.balance << endl;
+         << newAcc.accountNumber << endl;
 }
 
 // ============================================================
@@ -165,41 +156,33 @@ void deposit()
 {
     if (accounts.empty())
     {
-        cout << "\nNo accounts available.\n";
+        cout << "\nNo accounts yet!\n";
         cout << "Please create an account first.\n";
         return;
     }
 
-    cout << "\n========================================\n";
-    cout << "             DEPOSIT MONEY\n";
-    cout << "========================================\n";
+    int accNum;
 
-    int accountNumber;
+    cout << "\n----------------------------------------\n";
+    cout << "              DEPOSIT\n";
+    cout << "----------------------------------------\n";
 
-    cout << "Enter Account Number: ";
-    cin >> accountNumber;
+    cout << "Account Number: ";
+    cin >> accNum;
 
     if (cin.fail())
     {
         clearInput();
-        cout << "Invalid account number.\n";
+        cout << "Invalid account number!\n";
         return;
     }
 
-    Account* account = findAccount(accountNumber);
+    // Find account using pointer
+    Account* foundAcc = findAccount(accNum);
 
-    if (account == nullptr)
+    if (foundAcc == nullptr)
     {
-        cout << "\nAccount not found.\n";
-
-        cout << "\nAvailable Account Numbers:\n";
-
-        for (const Account& acc : accounts)
-        {
-            cout << "  " << acc.accountNumber
-                 << " - " << acc.customerName << endl;
-        }
-
+        cout << "Account not found!\n";
         return;
     }
 
@@ -211,41 +194,37 @@ void deposit()
     if (cin.fail())
     {
         clearInput();
-        cout << "Invalid amount.\n";
+        cout << "Invalid amount!\n";
         return;
     }
 
     if (amount <= 0)
     {
-        cout << "Amount must be greater than zero.\n";
+        cout << "Amount must be positive!\n";
         return;
     }
 
-    account->balance += amount;
+    // Modify account through pointer
+    foundAcc->balance += amount;
 
+    // Create transaction
     Transaction transaction;
 
     transaction.date = getCurrentDate();
-    transaction.accountNumber = account->accountNumber;
+    transaction.accountNumber = accNum;
     transaction.type = "Deposit";
     transaction.amount = amount;
-    transaction.balanceAfter = account->balance;
+    transaction.balanceAfter = foundAcc->balance;
 
     transactions.push_back(transaction);
 
-    cout << "\n========================================\n";
-    cout << "          DEPOSIT SUCCESSFUL\n";
-    cout << "========================================\n";
-
-    cout << "Account Number: "
-         << account->accountNumber << endl;
-
+    cout << "\nDeposit successful!\n";
     cout << "Deposited: Rs "
          << fixed << setprecision(2)
          << amount << endl;
 
     cout << "New Balance: Rs "
-         << account->balance << endl;
+         << foundAcc->balance << endl;
 }
 
 // ============================================================
@@ -256,40 +235,33 @@ void withdraw()
 {
     if (accounts.empty())
     {
-        cout << "\nNo accounts available.\n";
+        cout << "\nNo accounts yet!\n";
+        cout << "Please create an account first.\n";
         return;
     }
 
-    cout << "\n========================================\n";
-    cout << "            WITHDRAW MONEY\n";
-    cout << "========================================\n";
+    int accNum;
 
-    int accountNumber;
+    cout << "\n----------------------------------------\n";
+    cout << "             WITHDRAW\n";
+    cout << "----------------------------------------\n";
 
-    cout << "Enter Account Number: ";
-    cin >> accountNumber;
+    cout << "Account Number: ";
+    cin >> accNum;
 
     if (cin.fail())
     {
         clearInput();
-        cout << "Invalid account number.\n";
+        cout << "Invalid account number!\n";
         return;
     }
 
-    Account* account = findAccount(accountNumber);
+    // Find account using pointer
+    Account* foundAcc = findAccount(accNum);
 
-    if (account == nullptr)
+    if (foundAcc == nullptr)
     {
-        cout << "\nAccount not found.\n";
-
-        cout << "\nAvailable Account Numbers:\n";
-
-        for (const Account& acc : accounts)
-        {
-            cout << "  " << acc.accountNumber
-                 << " - " << acc.customerName << endl;
-        }
-
+        cout << "Account not found!\n";
         return;
     }
 
@@ -301,102 +273,47 @@ void withdraw()
     if (cin.fail())
     {
         clearInput();
-        cout << "Invalid amount.\n";
+        cout << "Invalid amount!\n";
         return;
     }
 
     if (amount <= 0)
     {
-        cout << "Amount must be greater than zero.\n";
+        cout << "Amount must be positive!\n";
         return;
     }
 
-    if (amount > account->balance)
+    // Check sufficient balance
+    if (amount > foundAcc->balance)
     {
-        cout << "\nInsufficient funds.\n";
-
+        cout << "Insufficient funds!\n";
         cout << "Current Balance: Rs "
              << fixed << setprecision(2)
-             << account->balance << endl;
-
+             << foundAcc->balance << endl;
         return;
     }
 
-    account->balance -= amount;
+    // Modify balance using pointer
+    foundAcc->balance -= amount;
 
+    // Create transaction
     Transaction transaction;
 
     transaction.date = getCurrentDate();
-    transaction.accountNumber = account->accountNumber;
+    transaction.accountNumber = accNum;
     transaction.type = "Withdraw";
     transaction.amount = amount;
-    transaction.balanceAfter = account->balance;
+    transaction.balanceAfter = foundAcc->balance;
 
     transactions.push_back(transaction);
 
-    cout << "\n========================================\n";
-    cout << "        WITHDRAWAL SUCCESSFUL\n";
-    cout << "========================================\n";
-
+    cout << "\nWithdrawal successful!\n";
     cout << "Withdrawn: Rs "
          << fixed << setprecision(2)
          << amount << endl;
 
     cout << "New Balance: Rs "
-         << account->balance << endl;
-}
-
-// ============================================================
-// CHECK BALANCE
-// ============================================================
-
-void checkBalance()
-{
-    if (accounts.empty())
-    {
-        cout << "\nNo accounts available.\n";
-        return;
-    }
-
-    int accountNumber;
-
-    cout << "\nEnter Account Number: ";
-    cin >> accountNumber;
-
-    if (cin.fail())
-    {
-        clearInput();
-        cout << "Invalid account number.\n";
-        return;
-    }
-
-    Account* account = findAccount(accountNumber);
-
-    if (account == nullptr)
-    {
-        cout << "Account not found.\n";
-        return;
-    }
-
-    cout << "\n========================================\n";
-    cout << "           ACCOUNT DETAILS\n";
-    cout << "========================================\n";
-
-    cout << "Account Number: "
-         << account->accountNumber << endl;
-
-    cout << "Customer Name: "
-         << account->customerName << endl;
-
-    cout << "Account Type: "
-         << account->accountType << endl;
-
-    cout << "Created Date: "
-         << account->createdDate << endl;
-
-    cout << "Balance: Rs "
-         << fixed << setprecision(2)
-         << account->balance << endl;
+         << foundAcc->balance << endl;
 }
 
 // ============================================================
@@ -407,34 +324,87 @@ void displayAllAccounts()
 {
     if (accounts.empty())
     {
-        cout << "\nNo accounts available.\n";
+        cout << "\nNo accounts!\n";
         return;
     }
 
-    cout << "\n=================================================================\n";
-    cout << "                      ALL ACCOUNTS\n";
-    cout << "=================================================================\n";
+    cout << "\n------------------------------------------------------------\n";
+    cout << "                    ALL ACCOUNTS\n";
+    cout << "------------------------------------------------------------\n";
 
     cout << left
-         << setw(12) << "Account"
-         << setw(22) << "Customer"
-         << setw(15) << "Type"
-         << setw(15) << "Balance"
+         << setw(12) << "Account No"
+         << setw(20) << "Name"
+         << setw(12) << "Type"
+         << setw(15) << "Balance (Rs)"
          << endl;
 
-    cout << string(64, '-') << endl;
+    cout << string(59, '-') << endl;
 
-    for (const Account& account : accounts)
+    for (const auto& acc : accounts)
     {
         cout << left
-             << setw(12) << account.accountNumber
-             << setw(22) << account.customerName
-             << setw(15) << account.accountType
+             << setw(12) << acc.accountNumber
+             << setw(20) << acc.customerName
+             << setw(12) << acc.accountType
              << setw(15)
              << fixed << setprecision(2)
-             << account.balance
+             << acc.balance
              << endl;
     }
+}
+
+// ============================================================
+// CHECK BALANCE
+// ============================================================
+
+void checkBalance()
+{
+    if (accounts.empty())
+    {
+        cout << "\nNo accounts!\n";
+        return;
+    }
+
+    int accNum;
+
+    cout << "\nAccount Number: ";
+    cin >> accNum;
+
+    if (cin.fail())
+    {
+        clearInput();
+        cout << "Invalid account number!\n";
+        return;
+    }
+
+    Account* foundAcc = findAccount(accNum);
+
+    if (foundAcc == nullptr)
+    {
+        cout << "Account not found!\n";
+        return;
+    }
+
+    cout << "\n----------------------------------------\n";
+    cout << "           ACCOUNT DETAILS\n";
+    cout << "----------------------------------------\n";
+
+    cout << "Account Number: "
+         << foundAcc->accountNumber << endl;
+
+    cout << "Customer Name: "
+         << foundAcc->customerName << endl;
+
+    cout << "Account Type: "
+         << foundAcc->accountType << endl;
+
+    cout << "Created Date: "
+         << foundAcc->createdDate << endl;
+
+    cout << "Balance: Rs "
+         << fixed << setprecision(2)
+         << foundAcc->balance << endl;
 }
 
 // ============================================================
@@ -445,39 +415,39 @@ void transactionHistory()
 {
     if (accounts.empty())
     {
-        cout << "\nNo accounts available.\n";
+        cout << "\nNo accounts!\n";
         return;
     }
 
-    int accountNumber;
+    int accNum;
 
-    cout << "\nEnter Account Number: ";
-    cin >> accountNumber;
+    cout << "\nAccount Number: ";
+    cin >> accNum;
 
     if (cin.fail())
     {
         clearInput();
-        cout << "Invalid account number.\n";
+        cout << "Invalid account number!\n";
         return;
     }
 
-    Account* account = findAccount(accountNumber);
+    Account* foundAcc = findAccount(accNum);
 
-    if (account == nullptr)
+    if (foundAcc == nullptr)
     {
-        cout << "Account not found.\n";
+        cout << "Account not found!\n";
         return;
     }
 
-    cout << "\n========================================\n";
+    cout << "\n----------------------------------------\n";
     cout << "          TRANSACTION HISTORY\n";
-    cout << "========================================\n";
+    cout << "----------------------------------------\n";
 
     bool found = false;
 
-    for (const Transaction& transaction : transactions)
+    for (const auto& transaction : transactions)
     {
-        if (transaction.accountNumber == accountNumber)
+        if (transaction.accountNumber == accNum)
         {
             cout << "\nDate: "
                  << transaction.date << endl;
@@ -500,7 +470,7 @@ void transactionHistory()
 
     if (!found)
     {
-        cout << "No transactions found.\n";
+        cout << "No transactions found for this account.\n";
     }
 }
 
@@ -508,95 +478,28 @@ void transactionHistory()
 // SAVE ACCOUNTS
 // ============================================================
 
-bool saveAccounts()
+void saveAccounts()
 {
     ofstream file(ACCOUNTS_FILE);
 
     if (!file)
     {
-        cout << "ERROR: Could not save accounts.dat\n";
-        return false;
+        cout << "Error saving accounts!\n";
+        return;
     }
 
-    file << accounts.size() << '\n';
+    file << accounts.size() << endl;
 
-    for (const Account& account : accounts)
+    for (const auto& acc : accounts)
     {
-        file << account.accountNumber << "|"
-             << account.customerName << "|"
-             << fixed << setprecision(2)
-             << account.balance << "|"
-             << account.accountType << "|"
-             << account.createdDate << '\n';
+        file << acc.accountNumber << "|"
+             << acc.customerName << "|"
+             << acc.balance << "|"
+             << acc.accountType << "|"
+             << acc.createdDate << endl;
     }
 
     file.close();
-
-    return true;
-}
-
-// ============================================================
-// SAVE TRANSACTIONS
-// ============================================================
-
-bool saveTransactions()
-{
-    ofstream file(TRANSACTIONS_FILE);
-
-    if (!file)
-    {
-        cout << "ERROR: Could not save transactions.dat\n";
-        return false;
-    }
-
-    file << transactions.size() << '\n';
-
-    for (const Transaction& transaction : transactions)
-    {
-        file << transaction.date << "|"
-             << transaction.accountNumber << "|"
-             << transaction.type << "|"
-             << fixed << setprecision(2)
-             << transaction.amount << "|"
-             << transaction.balanceAfter << '\n';
-    }
-
-    file.close();
-
-    return true;
-}
-
-// ============================================================
-// SAVE ALL DATA
-// ============================================================
-
-void saveData()
-{
-    bool accountsSaved = saveAccounts();
-    bool transactionsSaved = saveTransactions();
-
-    cout << "\n========================================\n";
-    cout << "              SAVE STATUS\n";
-    cout << "========================================\n";
-
-    if (accountsSaved && transactionsSaved)
-    {
-        cout << "All data saved successfully!\n\n";
-
-        cout << "Files created:\n";
-        cout << "1. accounts.dat\n";
-        cout << "2. transactions.dat\n\n";
-
-        cout << "These files are saved in the program's\n";
-        cout << "current working directory.\n\n";
-
-        cout << "If you are using VS Code, check the folder\n";
-        cout << "where banking.exe is being run.\n";
-    }
-    else
-    {
-        cout << "Some files could not be saved.\n";
-    }
 }
 
 // ============================================================
@@ -626,6 +529,7 @@ void loadAccounts()
 
     for (int i = 0; i < count; i++)
     {
+        Account acc;
         string line;
 
         if (!getline(file, line))
@@ -633,49 +537,68 @@ void loadAccounts()
             break;
         }
 
-        if (line.empty())
-        {
-            i--;
-            continue;
-        }
-
         stringstream ss(line);
-
-        Account account;
         string temp;
 
         try
         {
-            if (!getline(ss, temp, '|'))
-                continue;
+            // Account number
+            getline(ss, temp, '|');
+            acc.accountNumber = stoi(temp);
 
-            account.accountNumber = stoi(temp);
+            // Customer name
+            getline(ss, acc.customerName, '|');
 
-            if (!getline(ss, account.customerName, '|'))
-                continue;
+            // Balance
+            getline(ss, temp, '|');
+            acc.balance = stod(temp);
 
-            if (!getline(ss, temp, '|'))
-                continue;
+            // Account type
+            getline(ss, acc.accountType, '|');
 
-            account.balance = stod(temp);
+            // Created date
+            getline(ss, acc.createdDate);
 
-            if (!getline(ss, account.accountType, '|'))
-                continue;
+            accounts.push_back(acc);
 
-            if (!getline(ss, account.createdDate))
-                continue;
-
-            accounts.push_back(account);
-
-            if (account.accountNumber >= nextAccountNumber)
+            // Update next account number
+            if (acc.accountNumber >= nextAccountNumber)
             {
-                nextAccountNumber = account.accountNumber + 1;
+                nextAccountNumber = acc.accountNumber + 1;
             }
         }
         catch (...)
         {
-            cout << "Invalid account data skipped.\n";
+            cout << "Invalid account record skipped.\n";
         }
+    }
+
+    file.close();
+}
+
+// ============================================================
+// SAVE TRANSACTIONS
+// ============================================================
+
+void saveTransactions()
+{
+    ofstream file(TRANSACTIONS_FILE);
+
+    if (!file)
+    {
+        cout << "Error saving transactions!\n";
+        return;
+    }
+
+    file << transactions.size() << endl;
+
+    for (const auto& transaction : transactions)
+    {
+        file << transaction.date << "|"
+             << transaction.accountNumber << "|"
+             << transaction.type << "|"
+             << transaction.amount << "|"
+             << transaction.balanceAfter << endl;
     }
 
     file.close();
@@ -708,6 +631,7 @@ void loadTransactions()
 
     for (int i = 0; i < count; i++)
     {
+        Transaction transaction;
         string line;
 
         if (!getline(file, line))
@@ -715,45 +639,34 @@ void loadTransactions()
             break;
         }
 
-        if (line.empty())
-        {
-            i--;
-            continue;
-        }
-
         stringstream ss(line);
-
-        Transaction transaction;
         string temp;
 
         try
         {
-            if (!getline(ss, transaction.date, '|'))
-                continue;
+            // Date
+            getline(ss, transaction.date, '|');
 
-            if (!getline(ss, temp, '|'))
-                continue;
-
+            // Account number
+            getline(ss, temp, '|');
             transaction.accountNumber = stoi(temp);
 
-            if (!getline(ss, transaction.type, '|'))
-                continue;
+            // Transaction type
+            getline(ss, transaction.type, '|');
 
-            if (!getline(ss, temp, '|'))
-                continue;
-
+            // Amount
+            getline(ss, temp, '|');
             transaction.amount = stod(temp);
 
-            if (!getline(ss, temp))
-                continue;
-
+            // Balance after transaction
+            getline(ss, temp);
             transaction.balanceAfter = stod(temp);
 
             transactions.push_back(transaction);
         }
         catch (...)
         {
-            cout << "Invalid transaction data skipped.\n";
+            cout << "Invalid transaction record skipped.\n";
         }
     }
 
@@ -761,10 +674,23 @@ void loadTransactions()
 }
 
 // ============================================================
-// MENU
+// SAVE ALL DATA
 // ============================================================
 
-void menu()
+void saveData()
+{
+    saveAccounts();
+    saveTransactions();
+
+    cout << "\nData saved successfully!\n";
+    cout << "accounts.dat and transactions.dat have been updated.\n";
+}
+
+// ============================================================
+// MAIN MENU
+// ============================================================
+
+void showMenu()
 {
     cout << "\n\n";
     cout << "========================================\n";
@@ -782,11 +708,12 @@ void menu()
 }
 
 // ============================================================
-// MAIN
+// MAIN FUNCTION
 // ============================================================
 
 int main()
 {
+    // Load previously saved data
     loadAccounts();
     loadTransactions();
 
@@ -794,7 +721,7 @@ int main()
 
     do
     {
-        menu();
+        showMenu();
 
         cout << "Enter choice: ";
         cin >> choice;
@@ -802,7 +729,10 @@ int main()
         if (cin.fail())
         {
             clearInput();
-            cout << "\nInvalid choice. Please enter a number.\n";
+
+            cout << "\nInvalid input!\n";
+            cout << "Please enter a number from 0 to 7.\n";
+
             continue;
         }
 
@@ -838,11 +768,14 @@ int main()
 
             case 0:
                 saveData();
+
                 cout << "\nThank you for using the Banking System!\n";
+
                 break;
 
             default:
-                cout << "\nInvalid choice. Please select 0-7.\n";
+                cout << "\nInvalid choice!\n";
+                cout << "Please select a number from 0 to 7.\n";
         }
 
     } while (choice != 0);
